@@ -5,20 +5,16 @@ clear all;
 % read file
 [FileName,PathName,~] = uigetfile('*.jpg');
 I = imread([PathName FileName]);
-
 I = rgb2gray(I);
 figure,imagesc(I),axis image;
 a = 1
 b = 1
 while(a < 10)
     [x,y]=ginput(1);
-    
     x = round(x);
-    y = round(y);
-
+    y = round(y)
     [Ix,Iy]=gradient(double(I));
     w = fspecial('Gaussian',[5,5],1);
-    
     M_for = zeros(2,2);
     for i=-2:2,
         for j=-2:2,
@@ -26,7 +22,6 @@ while(a < 10)
                 Ix(y+i,x+j)*Iy(y+i,x+j) Iy(y+i,x+j)^2];
         end
     end
-    
     if (a == 1)
         M11 = imfilter(Ix.^2,w,'same','conv','replicate');
         M22 = imfilter(Iy.^2,w,'same','conv','replicate');

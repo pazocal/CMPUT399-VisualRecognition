@@ -1,0 +1,24 @@
+close all;
+clear all;
+
+% http://www.mathworks.com/help/images/ref/fspecial.html?searchHighlight=fspecial
+% read file
+[FileName,PathName,~] = uigetfile('*.jpg');
+I = imread([PathName FileName]);
+
+I = rgb2gray(I);
+figure,imagesc(I),colormap(gray),axis image;
+
+I_resize = imresize(I,0.25);
+figure,imagesc(I_resize),colormap(gray),axis image;
+
+[x,y] = ginput(1);
+
+for s = 3:45,
+    I_resize = imresize(I,0.25);
+    h = fspecial(log, s);
+   
+    imfilter(Ix.^2,w,'same','conv','replicate');
+
+end
+
