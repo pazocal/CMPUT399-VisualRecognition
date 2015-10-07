@@ -7,6 +7,18 @@ function ev = cross_validate_knn(X,y,ks,n)
 % n: a number indicating how many folds of cross validation to do,
 % typically 10
 % ev: mean error vector that you will output
+for j = 1:ks,
+    for i = 1:n,
+        xi = X[i];
+        yi = y[i];
+        xi_ = 0;
+        yi_ = 0;
+        yip = PredicPeopleCOunt(X,y);
+        ei = abs(mean(yi,yip))
+    end 
+end 
+
+% Compute ev, the mean error vector, as mean of ei's over n folds
 
 %%%%%%%%%%% Pseudo code for n-fold cross validation
 % for all values of k in ks

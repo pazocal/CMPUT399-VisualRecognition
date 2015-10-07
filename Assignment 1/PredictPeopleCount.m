@@ -7,8 +7,11 @@ function yt = PredictPeopleCount(X, y, Xt, k, combine_method)
 % dimension of the feature vector.
 % Xt is the m by p test feature. p is the number of test data points.
 % k is the knn parameter k
-% compbine_method is a string: 'mean' or 'mode'; you can use 'mean' for your
+% combine_method is a string: 'mean' or 'mode'; you can use 'mean' for your
 % assignment. When k is greater than 1, you will use combine_method to 
 % combine the responses of the neareast neighbors. Use
 % strcmp(combine_method, 'mean') to see if the input was 'mean', etc.
 % yt is the predicted count for the test set Xt. dimention of yt is p by 1.
+
+
+strcmp(combine_method,'mean');

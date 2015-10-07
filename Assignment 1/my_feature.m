@@ -7,3 +7,8 @@ function h = my_feature(I, B, b)
 % You will want to use the Matlab function "hist" for computing h only
 % inside the region of interest
 % normalize h so that sum(h) = 1.
+
+
+
+
+h = imhist(I,b);
