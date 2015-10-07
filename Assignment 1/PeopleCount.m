@@ -5,6 +5,19 @@
 % Step 1: Reading images from a folder
 %   Use "dir" program to list a folder where training images are kept. Use
 %   "imread" to read images.
+no_of_bins=128;
+img_fmt='pgm';
+train_img_dir='vidf_images';
+train_data_file='train_data.mat'; % file to which the training data will be saved
+use_only_pos=0; % set this to 0 to read both positive and negative training
+% samples; otherwise only positive images (those containing cars) will be read
+use_hist=0; % set this to 1 to use histogram as the feature;
+% otherwise raw pixel values will be used
+
+
+train_file_list=dir(strcat(train_img_dir,'/*.',img_fmt));
+train_size=length(train_file_list);
+
 
 % Step 2: Compute features and store them in a matrix X; Store counts in a
 % vector y. Use "my_feature" function for which a template is
