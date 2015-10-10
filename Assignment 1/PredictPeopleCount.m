@@ -13,5 +13,19 @@ function yt = PredictPeopleCount(X, y, Xt, k, combine_method)
 % strcmp(combine_method, 'mean') to see if the input was 'mean', etc.
 % yt is the predicted count for the test set Xt. dimention of yt is p by 1.
 
+% kd_tree=vl_kdtreebuild(X,'ThresholdMethod','mean');
+kd_tree=vl_kdtreebuild(X);
 
-strcmp(combine_method,'mean');
+% http://www.vlfeat.org/overview/kdtree.html
+[index,~] = vl_kdtreequery(kd_tree,X,Xt,'numneighbors',k);
+[row,col]=size(Xt);
+
+% strcmp(combine_method,'mean');
+
+% http://www.mathworks.com/help/matlab/ref/sum.html?searchHighlight=sum
+for i=1:col,
+    ele = y(index([1:k],i));
+    sum_value = sum(ele);
+    yt(i)=sum_value/k;
+end
+
