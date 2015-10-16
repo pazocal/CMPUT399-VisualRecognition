@@ -20,8 +20,6 @@ kd_tree=vl_kdtreebuild(X);
 [index,~] = vl_kdtreequery(kd_tree,X,Xt,'numneighbors',k);
 [row,col]=size(Xt);
 
-% strcmp(combine_method,'mean');
-
 % http://www.mathworks.com/help/matlab/ref/sum.html?searchHighlight=sum
 for i=1:col,
     ele = y(index([1:k],i));

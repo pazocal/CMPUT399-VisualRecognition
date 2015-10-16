@@ -16,6 +16,7 @@ function h = my_feature(I, B, b)
 
 % Method 2 from:
 % http://stackoverflow.com/questions/26876290/how-to-extract-region-of-interest-with-binary-mask
+
 ROI = I;
 ROI(b == 0) = 0;
 [row,col] = size(I);
