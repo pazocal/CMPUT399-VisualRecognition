@@ -1,0 +1,38 @@
+Loop closure detection
+
+constructIMDB---->building a vocabulary
+1. read imgs, get SIFT feature   
+	desc: 128 x NP
+	
+2. construct vocabulary
+	vl_kmeans(128 x sum(np),1K/5K/10K,***)  Option: Elkan, ANN
+
+3. search   
+	KDtree     content: vocabulary
+
+4. find words in each images
+	KDtreequery(KDtree in 3)
+	
+5. loadIndex(IMDB)
+
+
+
+MatchImages
+Compare each image with all images upto seq-cut-off
+
+words1 <---- img1
+words2 <---- img2
+......
+
+GV: matchWords()/geometricVerification() ====> common words            6 cases in total
+get match_fraction (matrix)
+
+
+Convert2Binary
+
+1. load match_fraction
+	match_fraction(i,j) > threshhold value
+	then i j are matched.
+	====> match matrix
+
+	Jaccard_Score = sum(sum(Match & GT)) / sum(sum(Match || GT))
