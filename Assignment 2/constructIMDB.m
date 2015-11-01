@@ -3,7 +3,7 @@ function [imdb] = constructIMDB(dir_name, count, no_of_words)
 
 % default parameters
 if nargin<3
-    no_of_words=10000;
+    no_of_words=1000;
 end
 if nargin<2
     count=1063;
@@ -25,19 +25,25 @@ imdb.numWords=no_of_words;
 imdb.sqrtHistograms=0;
 
 % a variable where you will save the imdb database later
-save_template='loop_closure_imdb'; 
+% save_template='loop_closure_imdb'; 
+
+% we add a postfix (i.e. the number of words) for the original template therefore I can keep 3
+% generated imdb files at the same time.
+save_template=['loop_closure_imdb_',num2str(imdb.numWords)];
 
 % Step 2: Read images and extract features
 % Here you will be reading images, calling "getFeatures" function and populating
 % imdb.images.name, imdb.images.frames and imdb.images.descrs cell arrays
+img_type = '/*.ppm';
 
-Image_type = '/*.ppm';
-
-disp('Please wait for a long time!');
-ImageUse = dir([imdb.dir Image_type]);
+img_set = dir([imdb.dir img_type]);
 for i=1:count
-    imdb.images.name{1,i} = ImageUse(i).name;
-    image = imread([imdb.dir '/' ImageUse(i).name]);
+    if mod(i, 100)==0,
+        fprintf('Processed %d images\n', i);
+    end
+    imdb.images.name{1,i} = img_set(i).name;
+    image = imread([imdb.dir '/' img_set(i).name]);
+    % get the feature, pop frames and descrs
     [frame, descrs] = getFeatures(image,imdb.featureOpts{:}) ;
     imdb.images.frames{1,i} = frame;
     imdb.images.descrs{1,i} = descrs;
@@ -47,23 +53,23 @@ end
 % using K-Means clustering. Call "vl_kmeans" function with combined features and
 % imdb.numWords to assign vocabulary to imdb.vocab
 
-des = cat(2,imdb.images.descrs{:});
-centerWord = vl_kmeans(des,imdb.numWords,'algorithm','ANN');
-imdb.vocab = centerWord;
+% contruct the vocab: cat the imdb.images.descrs to a 2-D array first then
+% call vl_kmeans, here ANN algorithm is chosen.
 
+imdb.vocab = vl_kmeans(cat(2,imdb.images.descrs{:}),imdb.numWords,'algorithm','ANN');
+
+ 
 % Step 4: Construct a KD tree from this vocabulary and assign to imdb.kdtree
 
-imdb.tree = vl_kdtreebuild(centerWord);
+imdb.kdtree = vl_kdtreebuild(imdb.vocab);
 
 % Step 5: Find the words present in each image through NN search of the
 % vocabulary to populate imdb.images.words cell array. Use "vl_kdtreequery" 
 % function for the NN search.
 
-
 for i = 1:count
-    imdb.images.words{i} = vl_kdtreequery(imdb.tree, imdb.vocab,imdb.images.descrs{i});
+    imdb.images.words{i} = vl_kdtreequery(imdb.kdtree, imdb.vocab,imdb.images.descrs{i});
 end
-
 
 % Step 6: Compute indexes and idf weights by calling "loadIndex" function
 imdb = loadIndex(imdb);

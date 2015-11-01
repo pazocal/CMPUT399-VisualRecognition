@@ -1,0 +1,26 @@
+
+           geo?          Jscore          T
+
+1K	    y            0.1885          0.20
+	    n            0.1768          0.40
+	
+5K	    y            0.1976          0.15
+	    n            0.1919          0.20
+
+10K 	    y            0.2062          0.15
+	    n            0.2073          0.20
+
+100K	    y            0.1919          0.05
+	    n            0.1764          0.05
+
+The result is got from IMDB built with ANN algorithm, I tried the other one and the result are similar in trend.
+As we can see from the table, geoVerification made an obvious improvement for the Jaccard score, 
+therefore we can see the geoVerification improve the similarity. 
+Since the similarity increases, the threshold value decreases at the same time, we only need a smaller value to find the best one.
+
+Explanation£º
+I changed some functions (say, convertToBinary) and I will upload them together, 
+you can see the changes are obviously for naming the output files only. There is no structrual change.
+
+Also, for dealing with the 100K case, I made another one constructIMDB.
+
