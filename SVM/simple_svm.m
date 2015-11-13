@@ -1,7 +1,7 @@
 % Illustrates a simple SV classifer
 close all;
-
-separable=1;
+clear all;
+separable=0;
 
 if separable==1,
     % separable case
