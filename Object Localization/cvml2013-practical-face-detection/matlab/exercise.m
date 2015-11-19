@@ -184,12 +184,12 @@ fprintf('press a key...'), pause, fprintf('\n')
 
 
 % 1.1
-%W=...
+W = (yalpha'*Xsup)';
 
 
 % 1.2 
-%conftrainnew = ...
-%confvalnew   = ...
+conftrainnew = Xtrain*W+b;
+confvalnew   = Xval*W+b;
 
 
 %%%%%%%%%%%%%%% Re-compute classification accuracy using true sample labels 'y'
@@ -253,11 +253,19 @@ for i=1:length(Call)
   % 'modelbest' maximizing accuracy on the validation set. 
   % Compute and display W for the current model
   
-  %...
-  
-  clf, showimage(reshape(W,24,24))
+  [Xsup,yalpha,b,pos]=svmclass(Xtrain,ytrain,C,epsilon,kernel,kerneloption,verbose);
+  [ypredtrain,acctrain,conftrain]=svmvalmod(Xtrain,ytrain,Xsup,yalpha,b,kernel,kerneloption);
+  [ypredval,accval,confval]=svmvalmod(Xval,yval,Xsup,yalpha,b,kernel,kerneloption);
+  W = (yalpha'*Xsup)';
+  clf, showimage(reshape(W,24,24));
   s=sprintf('C=%1.5f | Training accuracy: %1.3f; validation accuracy: %1.3f',C,acctrain,accval);
   title(s); fprintf([s '\n']); drawnow
+  if accbest<accval,
+      accbest = accval;
+      Cbest = C;
+      Wbest = W;
+      bbest = b;
+  end
 end
 fprintf(' -> Best accuracy %1.3f for C=%1.5f\n',accbest,Cbest)
 fprintf('press a key...'), pause, fprintf('\n')
