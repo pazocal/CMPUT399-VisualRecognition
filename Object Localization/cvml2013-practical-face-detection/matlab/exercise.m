@@ -370,14 +370,14 @@ fprintf('press a key...'), pause, fprintf('\n')
 %%%%%%%%%%%%%%% 3.3 Try detection and with different thresholds for different
 %%%%%%%%%%%%%%%     included images: 'img1.jpg', 'img2.jpg', 'img3.jpg', 'img4.jpg'
 %%%%%%%%%%%%%%% 
-confthresh=2.5;
+confthresh=4.7;
 indsel=find(conf>confthresh);
 [nmsbbox,nmsconf]=prunebboxes(bbox(indsel,:),conf(indsel),0.2);
 
 
 %%%%%%%%%%%%%%% display detections above threshold after non-max suppression
 %%%%%%%%%%%%%%% 
-confthreshnms=1;
+confthreshnms=4.5;
 clf, showimage(img)
 indsel=find(nmsconf>confthreshnms);
 showbbox(nmsbbox(indsel,:),[1 1 0],regexp(num2str(nmsconf(indsel)'),'\d+\.\d+','match'));
