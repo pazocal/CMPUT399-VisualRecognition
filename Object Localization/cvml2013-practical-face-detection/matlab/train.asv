@@ -1,0 +1,10 @@
+setup
+colormap(gray)
+
+
+load pa
+
+npos=size(possamples,3);
+load(negfname,'negsamples'); nneg=size(negsamples,3);  
+possamples=double(possamples);
+negsamples=double(negsamples);
