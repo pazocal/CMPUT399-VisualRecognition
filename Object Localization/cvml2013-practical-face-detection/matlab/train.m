@@ -90,3 +90,26 @@ yval=[ypos(indposval); yneg(indnegval)];
 % free memory
 clear possamples negsamples
 
+
+
+%%%%%%%%%%%%%%% set SVM parameters: linear kernel with C-parameter specified
+%%%%%%%%%%%%%%%
+
+c = 0.001;       % c-parameter
+epsilon = .000001;
+kerneloption= 1; % degree of polynomial kernel (1=linear)
+kernel='poly';   % polynomial kernel
+verbose = 0;
+tic
+fprintf('Training SVM classifier with %d pos. and %d neg. samples...',sum(ytrain==1),sum(ytrain~=1))
+[Xsup,yalpha,b,pos]=svmclass(Xtrain,ytrain,c,epsilon,kernel,kerneloption,verbose);
+fprintf(' -> %d support vectors (%1.1fsec.)\n',size(Xsup,1),toc)
+
+
+%%%%%%%%%%%%%%% get prediction for training and validation samples
+%%%%%%%%%%%%%%%
+fprintf('Running evaluation... ')
+[ypredtrain,acctrain,conftrain]=svmvalmod(Xtrain,ytrain,Xsup,yalpha,b,kernel,kerneloption);
+[ypredval,accval,confval]=svmvalmod(Xval,yval,Xsup,yalpha,b,kernel,kerneloption);
+fprintf('Training accuracy: %1.3f; validation accuracy: %1.3f\n',acctrain(1),accval(1))
+fprintf('press a key...'), pause, fprintf('\n')

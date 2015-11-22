@@ -242,12 +242,11 @@ clf, showimage(reshape(W,24,24))
 %%%%%%%%%%%%%%% 2.2 When traibning for different C values, compute W,b
 %%%%%%%%%%%%%%%     and visualize W as an image (see above)
 %%%%%%%%%%%%%%%
-Call=[1000 100 10 1 .1 .01 .001 .0001 .00001];
+Call=[1000 100 10 1 .1 .01 .001 .0001 .00005 .00001];
 accbest=-inf; 
 modelbest=[];
 for i=1:length(Call)
   C=Call(i);
-  
   % fill-in this part with the training of linear SVM for
   % the current C value (see code above). Select the model 
   % 'modelbest' maximizing accuracy on the validation set. 
@@ -335,7 +334,7 @@ conf=X*Wbest-bbest;
 
 %%%%%%%%%%%%%%% display most confident detections
 %%%%%%%%%%%%%%%
-n=30;
+n=20;
 [vs,is]=sort(conf,'descend');
 clf, showimage(img), showbbox(bbox(is(1:n),:))
 title(sprintf('%d best detections',n),'FontSize',14)
@@ -371,7 +370,7 @@ fprintf('press a key...'), pause, fprintf('\n')
 %%%%%%%%%%%%%%% 3.3 Try detection and with different thresholds for different
 %%%%%%%%%%%%%%%     included images: 'img1.jpg', 'img2.jpg', 'img3.jpg', 'img4.jpg'
 %%%%%%%%%%%%%%% 
-confthresh=4.5;
+confthresh=2.5;
 indsel=find(conf>confthresh);
 [nmsbbox,nmsconf]=prunebboxes(bbox(indsel,:),conf(indsel),0.2);
 
