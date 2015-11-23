@@ -29,29 +29,6 @@ for i=1:10
 end
 
 
-% clf
-% fprintf('Showing images of random Positive samples\n')
-% showimage(possampleimage'); title('positive samples')
-% fprintf('press a key...'), pause, fprintf('\n')
-% fprintf('Showing images of random Negative samples\n')
-% showimage(negsampleimage'); title('negative samples')
-% fprintf('press a key...'), pause, fprintf('\n')
-
-
-
-%%%%%%%%%%%%%%%% we can also display an average face and non-face images
-%%%%%%%%%%%%%%%%
-
-% clf, 
-% fprintf('Showing average images for Positive and Negative samples\n')
-% subplot(1,2,1), title('average positive image')
-% showimage(mean(possamples(:,:,1:2000),3)); 
-% subplot(1,2,2), title('average negative image')
-% showimage(mean(negsamples(:,:,1:2000),3)); 
-% fprintf('press a key...'), pause, fprintf('\n')
-
-
-
 %%%%%%%%%%%%%%%% Positive training images have been manually aligned
 %%%%%%%%%%%%%%%% by x-y coordinates. However, they may have large
 %%%%%%%%%%%%%%%% variation in the amplitude. To remove this variation
@@ -82,8 +59,8 @@ yneg=-ones(nneg,1);
 
 %%%%%%%%%%%%%%% separate data into the training and validation set
 %%%%%%%%%%%%%%% 
-ntrainpos=2000;
-ntrainneg=2000;
+ntrainpos=1000;
+ntrainneg=1000;
 indpostrain=1:ntrainpos; indposval=indpostrain+ntrainpos;
 indnegtrain=1:ntrainneg; indnegval=indnegtrain+ntrainneg;
 
@@ -91,204 +68,170 @@ Xtrain=[Xpos(indpostrain,:); Xneg(indnegtrain,:)];
 ytrain=[ypos(indpostrain); yneg(indnegtrain)];
 Xval=[Xpos(indposval,:); Xneg(indnegval,:)];
 yval=[ypos(indposval); yneg(indnegval)];
-
-% % free memory
-% clear possamples negsamples
-
-cellSize=8;
-for i=1:size(possamples,3)
-    hog = vl_hog(single(possamples(:,:,i)), cellSize, 'verbose');
-end
-disp(size(hog,1));
-disp(size(hog,2));
-disp(size(hog,3));
-
 % 
-% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% %%%%%%%%%%%%%%%%% Part 2: Train and test SVM classifier, analyze parameters %%
-% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% 
-% 
-% %%%%%%%%%%%%%%% set SVM parameters: linear kernel with C-parameter specified
-% %%%%%%%%%%%%%%%
-% 
-% c = 0.001;       % c-parameter
-% epsilon = .000001;
-% kerneloption= 1; % degree of polynomial kernel (1=linear)
-% kernel='poly';   % polynomial kernel
-% verbose = 0;
-% tic
-% fprintf('Training SVM classifier with %d pos. and %d neg. samples...',sum(ytrain==1),sum(ytrain~=1))
-% [Xsup,yalpha,b,pos]=svmclass(Xtrain,ytrain,c,epsilon,kernel,kerneloption,verbose);
-% fprintf(' -> %d support vectors (%1.1fsec.)\n',size(Xsup,1),toc)
-% 
-% 
-% %%%%%%%%%%%%%%% get prediction for training and validation samples
-% %%%%%%%%%%%%%%%
-% fprintf('Running evaluation... ')
-% [ypredtrain,acctrain,conftrain]=svmvalmod(Xtrain,ytrain,Xsup,yalpha,b,kernel,kerneloption);
-% [ypredval,accval,confval]=svmvalmod(Xval,yval,Xsup,yalpha,b,kernel,kerneloption);
-% fprintf('Training accuracy: %1.3f; validation accuracy: %1.3f\n',acctrain(1),accval(1))
-% %fprintf('press a key...'), pause, fprintf('\n')
-% 
-% 
-% 
-% %%%%%%%%%%%%%%% **************************************************************
-% %%%%%%%%%%%%%%% **************************************************************
-% %%%%%%%%%%%%%%% *                                                            *
-% %%%%%%%%%%%%%%% *                       EXERCISE 1:                          *
-% %%%%%%%%%%%%%%% *                                                            *
-% %%%%%%%%%%%%%%% *       Compute SVM hyper-plane W from support vectors       *
-% %%%%%%%%%%%%%%% *                                                            *
-% %%%%%%%%%%%%%%% **************************************************************
-% %%%%%%%%%%%%%%% **************************************************************
-% %%%%%%%%%%%%%%%                                                             
-% %%%%%%%%%%%%%%% Linear SVM classifier can be expressed in the form of a 
-% %%%%%%%%%%%%%%% hyper-plane W in the original feature space, i.e. 24*25=576-D
-% %%%%%%%%%%%%%%% space of face-image pixel values. Let's construct W.
-% %%%%%%%%%%%%%%% 
-% %%%%%%%%%%%%%%% Recall that W can be expressed in terms of support vectors
-% %%%%%%%%%%%%%%% and their coefficients as W = sum_i [alpha_i*y_i*X_i]
-% %%%%%%%%%%%%%%% The solution above provides support vecotors in 'Xsup'
-% %%%%%%%%%%%%%%% and alpha_i*y_i in 'yalpha'. 
-% %%%%%%%%%%%%%%%
-% %%%%%%%%%%%%%%% TODO:
-% %%%%%%%%%%%%%%% 1.1 Compute W from Xsup and yalpha
-% %%%%%%%%%%%%%%% 1.2 re-compute confidence for training and validation samples values
-% %%%%%%%%%%%%%%%     as distances between sample vectors X and W using bias 'b' as 
-% %%%%%%%%%%%%%%%     conf=X*W+b
-% 
-% 
-% % 1.1
-% W = (yalpha'*Xsup)';
-% 
-% 
-% % 1.2 
-% conftrainnew = Xtrain*W+b;
-% confvalnew   = Xval*W+b;
-% 
-% 
-% %%%%%%%%%%%%%%% Re-compute classification accuracy using true sample labels 'y'
-% %%%%%%%%%%%%%%% for training and validation samples
-% 
-% acctrainnew = mean((conftrainnew>0)*2-1==ytrain);
-% accvalnew   = mean((confvalnew>0)*2-1==yval);
-% fprintf('Training and validation accuracy re-computed from W,b: %1.3f; %1.3f\n',acctrainnew,accvalnew)
-% %fprintf('press a key...'), pause, fprintf('\n')
-% 
-% 
-% %%%%%%%%%%%%%%% **************************************************************
-% %%%%%%%%%%%%%%% ******************* END of EXERCISE 1 ************************
-% %%%%%%%%%%%%%%% **************************************************************
-% 
-% 
-% 
-% %%%%%%%%%%%%%%% The values of the hyper-plane W are
-% %%%%%%%%%%%%%%% the weights of individual pixel values and can be displayed
-% %%%%%%%%%%%%%%% as an image. Let's construct W from support vectors
-% %%%%%%%%%%%%%%%
-% clf, showimage(reshape(W,24,24))
-% 
-% 
-% 
-% 
-% 
-% %%%%%%%%%%%%%%% **************************************************************
-% %%%%%%%%%%%%%%% **************************************************************
-% %%%%%%%%%%%%%%% *                                                            *
-% %%%%%%%%%%%%%%% *                       EXERCISE 2:                          *
-% %%%%%%%%%%%%%%% *                                                            *
-% %%%%%%%%%%%%%%% *        Optimize C parameter on the validation set          *
-% %%%%%%%%%%%%%%% *                                                            *
-% %%%%%%%%%%%%%%% **************************************************************
-% %%%%%%%%%%%%%%% **************************************************************
-% %%%%%%%%%%%%%%%
-% %%%%%%%%%%%%%%% SVM generalization ability depends on the constant C
-% %%%%%%%%%%%%%%% A standard practice for choosing C is to empirically
-% %%%%%%%%%%%%%%% select the best value of C by maximizing performance on
-% %%%%%%%%%%%%%%% the validation set. (Note that C or any other parameters
-% %%%%%%%%%%%%%%% should never be optimized on the final test set.)
-% %%%%%%%%%%%%%%%
-% %%%%%%%%%%%%%%% TODO:
-% %%%%%%%%%%%%%%% 2.1 train linear SVM as above for different values of C
-% %%%%%%%%%%%%%%%     and select the best C 'Cbest' and the best model 'Wbest'
-% %%%%%%%%%%%%%%%     and 'bbest' maximizing accuracy on the validation set.
-% %%%%%%%%%%%%%%%     Hint: try exponentially distribution values, e.g. 
-% %%%%%%%%%%%%%%%     [1000 100 10 1 .1 .01 .001 .0001 .00001];
-% %%%%%%%%%%%%%%% 2.2 When traibning for different C values, compute W,b
-% %%%%%%%%%%%%%%%     and visualize W as an image (see above)
-% %%%%%%%%%%%%%%%
-% Call=[1000 100 10 1 .1 .01 .001 .0001 .00005 .00001];
-% accbest=-inf; 
-% modelbest=[];
-% for i=1:length(Call)
-%   C=Call(i);
-%   % fill-in this part with the training of linear SVM for
-%   % the current C value (see code above). Select the model 
-%   % 'modelbest' maximizing accuracy on the validation set. 
-%   % Compute and display W for the current model
-%   
-%   [Xsup,yalpha,b,pos]=svmclass(Xtrain,ytrain,C,epsilon,kernel,kerneloption,verbose);
-%   [ypredtrain,acctrain,conftrain]=svmvalmod(Xtrain,ytrain,Xsup,yalpha,b,kernel,kerneloption);
-%   [ypredval,accval,confval]=svmvalmod(Xval,yval,Xsup,yalpha,b,kernel,kerneloption);
-%   W = (yalpha'*Xsup)';
-%   clf, showimage(reshape(W,24,24));
-%   s=sprintf('C=%1.5f | Training accuracy: %1.3f; validation accuracy: %1.3f',C,acctrain,accval);
-%   title(s); fprintf([s '\n']); drawnow
-%   if accbest<accval,
-%       accbest = accval;
-%       Cbest = C;
-%       Wbest = W;
-%       bbest = b;
-%   end
+% % change the cellSize for optimal solution, default 8
+% cellSize=8;
+% for i=1:size(possamples,3)
+%     hog = vl_hog(single(possamples(:,:,i)), cellSize, 'verbose');
+%     reX = reshape(hog,[size(hog,1)*size(hog,2)*size(hog,3) 1]);
+%     Xhogpos(i,:) = reX;
 % end
-% fprintf(' -> Best accuracy %1.3f for C=%1.5f\n',accbest,Cbest)
-% %fprintf('press a key...'), pause, fprintf('\n')
 % 
-% 
-% 
-% 
-% %%%%%%%%%%%%%%% **************************************************************
-% %%%%%%%%%%%%%%% ******************* END of EXERCISE 2 ************************
-% %%%%%%%%%%%%%%% **************************************************************
-% 
-%   
-% 
-% %%%%%%%%%%%%%%% W of the best classifier "looks like" and average face image
-% %%%%%%%%%%%%%%% Is it sufficient to construct W as the mean of of positive
-% %%%%%%%%%%%%%%% samples??? Let's try it
-% %%%%%%%%%%%%%%%
-% 
-% 
-% Walt=transpose(mean(Xtrain(find(ytrain==1),:),1));
-% clf, showimage(reshape(Walt,24,24)), drawnow
-% 
-% balt=0;
-% conftrainnew = Xtrain*Walt-balt;
-% confvalnew   = Xval*Walt-balt;
-% acctrainnew = mean((conftrainnew>0)*2-1==ytrain);
-% accvalnew   = mean((confvalnew>0)*2-1==yval);
-% fprintf('Training and validation accuracy estimated from W = "average image": %1.3f; %1.3f\n',acctrainnew,accvalnew)
-% % fprintf('press a key...'), pause, fprintf('\n')
-% 
+% for i=1:size(negsamples,3)
+%     hog = vl_hog(single(negsamples(:,:,i)), cellSize, 'verbose');
+%     reX = reshape(hog,[size(hog,1)*size(hog,2)*size(hog,3) 1]);
+%     Xhogneg(i,:) = reX;
+% end
+
+clear possamples negsamples
 
 
 
 
 
 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%% Part 2: Train and test SVM classifier, analyze parameters %%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+%%%%%%%%%%%%%%% set SVM parameters: linear kernel with C-parameter specified
+%%%%%%%%%%%%%%%
+
+c = 0.001;       % c-parameter
+epsilon = .000001;
+kerneloption= 1; % degree of polynomial kernel (1=linear)
+kernel='poly';   % polynomial kernel
+verbose = 0;
+tic
+fprintf('Training SVM classifier with %d pos. and %d neg. samples...',sum(ytrain==1),sum(ytrain~=1))
+[Xsup,yalpha,b,pos]=svmclass(Xtrain,ytrain,c,epsilon,kernel,kerneloption,verbose);
+fprintf(' -> %d support vectors (%1.1fsec.)\n',size(Xsup,1),toc)
+
+
+%%%%%%%%%%%%%%% get prediction for training and validation samples
+%%%%%%%%%%%%%%%
+fprintf('Running evaluation... ')
+[ypredtrain,acctrain,conftrain]=svmvalmod(Xtrain,ytrain,Xsup,yalpha,b,kernel,kerneloption);
+[ypredval,accval,confval]=svmvalmod(Xval,yval,Xsup,yalpha,b,kernel,kerneloption);
+fprintf('Training accuracy: %1.3f; validation accuracy: %1.3f\n',acctrain(1),accval(1))
+% fprintf('press a key...'), pause, fprintf('\n')
 
 
 
+%%%%%%%%%%%%%%% **************************************************************
+%%%%%%%%%%%%%%% **************************************************************
+%%%%%%%%%%%%%%% *                                                            *
+%%%%%%%%%%%%%%% *                       EXERCISE 1:                          *
+%%%%%%%%%%%%%%% *                                                            *
+%%%%%%%%%%%%%%% *       Compute SVM hyper-plane W from support vectors       *
+%%%%%%%%%%%%%%% *                                                            *
+%%%%%%%%%%%%%%% **************************************************************
+%%%%%%%%%%%%%%% **************************************************************
+%%%%%%%%%%%%%%%                                                             
+%%%%%%%%%%%%%%% Linear SVM classifier can be expressed in the form of a 
+%%%%%%%%%%%%%%% hyper-plane W in the original feature space, i.e. 24*25=576-D
+%%%%%%%%%%%%%%% space of face-image pixel values. Let's construct W.
+%%%%%%%%%%%%%%% 
+%%%%%%%%%%%%%%% Recall that W can be expressed in terms of support vectors
+%%%%%%%%%%%%%%% and their coefficients as W = sum_i [alpha_i*y_i*X_i]
+%%%%%%%%%%%%%%% The solution above provides support vecotors in 'Xsup'
+%%%%%%%%%%%%%%% and alpha_i*y_i in 'yalpha'. 
+%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%% TODO:
+%%%%%%%%%%%%%%% 1.1 Compute W from Xsup and yalpha
+%%%%%%%%%%%%%%% 1.2 re-compute confidence for training and validation samples values
+%%%%%%%%%%%%%%%     as distances between sample vectors X and W using bias 'b' as 
+%%%%%%%%%%%%%%%     conf=X*W+b
+
+
+% 1.1
+W = (yalpha'*Xsup)';
+
+
+% 1.2 
+conftrainnew = Xtrain*W+b;
+confvalnew   = Xval*W+b;
+
+
+%%%%%%%%%%%%%%% Re-compute classification accuracy using true sample labels 'y'
+%%%%%%%%%%%%%%% for training and validation samples
+
+acctrainnew = mean((conftrainnew>0)*2-1==ytrain);
+accvalnew   = mean((confvalnew>0)*2-1==yval);
+fprintf('Training and validation accuracy re-computed from W,b: %1.3f; %1.3f\n',acctrainnew,accvalnew)
+% fprintf('press a key...'), pause, fprintf('\n')
+
+
+%%%%%%%%%%%%%%% **************************************************************
+%%%%%%%%%%%%%%% ******************* END of EXERCISE 1 ************************
+%%%%%%%%%%%%%%% **************************************************************
 
 
 
+%%%%%%%%%%%%%%% The values of the hyper-plane W are
+%%%%%%%%%%%%%%% the weights of individual pixel values and can be displayed
+%%%%%%%%%%%%%%% as an image. Let's construct W from support vectors
+%%%%%%%%%%%%%%%
+clf, showimage(reshape(W,24,24))
 
 
+%%%%%%%%%%%%%%% **************************************************************
+%%%%%%%%%%%%%%% **************************************************************
+%%%%%%%%%%%%%%% *                                                            *
+%%%%%%%%%%%%%%% *                       EXERCISE 2:                          *
+%%%%%%%%%%%%%%% *                                                            *
+%%%%%%%%%%%%%%% *        Optimize C parameter on the validation set          *
+%%%%%%%%%%%%%%% *                                                            *
+%%%%%%%%%%%%%%% **************************************************************
+%%%%%%%%%%%%%%% **************************************************************
+%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%% SVM generalization ability depends on the constant C
+%%%%%%%%%%%%%%% A standard practice for choosing C is to empirically
+%%%%%%%%%%%%%%% select the best value of C by maximizing performance on
+%%%%%%%%%%%%%%% the validation set. (Note that C or any other parameters
+%%%%%%%%%%%%%%% should never be optimized on the final test set.)
+%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%% TODO:
+%%%%%%%%%%%%%%% 2.1 train linear SVM as above for different values of C
+%%%%%%%%%%%%%%%     and select the best C 'Cbest' and the best model 'Wbest'
+%%%%%%%%%%%%%%%     and 'bbest' maximizing accuracy on the validation set.
+%%%%%%%%%%%%%%%     Hint: try exponentially distribution values, e.g. 
+%%%%%%%%%%%%%%%     [1000 100 10 1 .1 .01 .001 .0001 .00001];
+%%%%%%%%%%%%%%% 2.2 When traibning for different C values, compute W,b
+%%%%%%%%%%%%%%%     and visualize W as an image (see above)
+%%%%%%%%%%%%%%%
+Call=[1000 100 10 1 .1 .01 .001 .0001 .00001];
+accbest=-inf; 
+modelbest=[];
+for i=1:length(Call)
+  C=Call(i);
+  % fill-in this part with the training of linear SVM for
+  % the current C value (see code above). Select the model 
+  % 'modelbest' maximizing accuracy on the validation set. 
+  % Compute and display W for the current model
+  
+  [Xsup,yalpha,b,pos]=svmclass(Xtrain,ytrain,C,epsilon,kernel,kerneloption,verbose);
+  [ypredtrain,acctrain,conftrain]=svmvalmod(Xtrain,ytrain,Xsup,yalpha,b,kernel,kerneloption);
+  [ypredval,accval,confval]=svmvalmod(Xval,yval,Xsup,yalpha,b,kernel,kerneloption);
+  W = (yalpha'*Xsup)';
+  clf, showimage(reshape(W,24,24));
+  s=sprintf('C=%1.5f | Training accuracy: %1.3f; validation accuracy: %1.3f',C,acctrain,accval);
+  title(s); fprintf([s '\n']); drawnow
+  if accbest<accval,
+      accbest = accval;
+      Cbest = C;
+      Wbest = W;
+      bbest = b;
+  end
+end
+fprintf(' -> Best accuracy %1.3f for C=%1.5f\n',accbest,Cbest)
+% fprintf('press a key...'), pause, fprintf('\n')
 
 
-
-
+%%%%%%%%%%%%%%% **************************************************************
+%%%%%%%%%%%%%%% ******************* END of EXERCISE 2 ************************
+%%%%%%%%%%%%%%% **************************************************************
 
 
 
