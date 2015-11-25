@@ -59,8 +59,8 @@ yneg=-ones(nneg,1);
 
 %%%%%%%%%%%%%%% separate data into the training and validation set
 %%%%%%%%%%%%%%% 
-ntrainpos=1200;
-ntrainneg=1200;
+ntrainpos=1000;
+ntrainneg=1000;
 indpostrain=1:ntrainpos; indposval=indpostrain+ntrainpos;
 indnegtrain=1:ntrainneg; indnegval=indnegtrain+ntrainneg;
 
@@ -115,7 +115,7 @@ fprintf('Training and validation accuracy re-computed from W,b: %1.3f; %1.3f\n',
 
 clf, showimage(reshape(W,24,24))
 
-Call=[100 10 1 .1 .01 .001 .0001 .00001];
+Call=[1000 100 10 1 .1 .01 .001 .0001 .00001];
 accbest=-inf; 
 modelbest=[];
 for i=1:length(Call)
@@ -172,7 +172,7 @@ Xhogneg=double(Xhogneg);
 Xtrain=[Xhogpos(indpostrain,:); Xhogneg(indnegtrain,:)];
 Xval=[Xhogpos(indposval,:); Xhogneg(indnegval,:)];
 
-Call=[100 10 1 .1 .01 .001 .0001 .00001];
+Call=[1000 100 10 1 .1 .01 .001 .0001 .00001];
 accbest=-inf; 
 modelbest=[];
 for i=1:length(Call)
@@ -193,4 +193,4 @@ for i=1:length(Call)
  
 end
 fprintf(' -> Best accuracy %1.3f for C=%1.5f\n',accbest,Cbest)
-clear all
+clear all;
