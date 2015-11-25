@@ -295,6 +295,14 @@ fprintf('press a key...'), pause, fprintf('\n')
 
 
 
+
+
+
+
+
+
+
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%% Part 3: Scanning window face detection %%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -390,3 +398,23 @@ fprintf('press a key...'), pause, fprintf('\n')
 %%%%%%%%%%%%%%% **************************************************************
 
 
+confthresh=0;
+indsel=find(conf>confthresh);
+[predrbf,accrbf,confrbf] = svmpredict(ones(size(indsel)),X(indsel,:),modelrbf);
+[nmsbboxrbf,nmsconfrbf]=prunebboxes(bbox(indsel,:),confrbf,0.2);
+
+
+%%%%%%%%%%%%%%% display detections above threshold after non-max suppression
+%%%%%%%%%%%%%%% 
+
+confthreshnms=1;
+clf, subplot(1,2,1), showimage(img)
+indsel=find(nmsconf>confthreshnms);
+showbbox(nmsbbox(indsel,:),[1 1 0],regexp(num2str(nmsconf(indsel)'),'\d+\.\d+','match'));
+title('Linear','FontSize',14)
+
+confthreshrbf=1;
+subplot(1,2,2), showimage(img)
+indsel=find(nmsconfrbf>confthreshrbf);
+showbbox(nmsbboxrbf(indsel,:),[1 1 0],regexp(num2str(nmsconfrbf(indsel)'),'\d+\.\d+','match'));
+title('RBF','FontSize',14)

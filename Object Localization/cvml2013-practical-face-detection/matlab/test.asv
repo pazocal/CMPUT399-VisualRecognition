@@ -44,8 +44,8 @@ for j=5:level
     cellSize=8;
     for i=1:size(imgcropall,3)
         hog = vl_hog(single(imgcropall(:,:,i)), cellSize, 'verbose');
-        [a,b,c]=size(hog);
-        reX = reshape(hog,1,a*b*c);
+        [a,b,c]=size(hog)
+        reX = reshape(hog,1,3*3*31);
         Xhogtest(i,:) = reX;
     end
     % recompute conf by the new hog result and previous data
@@ -55,16 +55,16 @@ for j=5:level
     
     
     
-    confthresh=5;
+    confthresh=4.8;
     indsel=find(conf>confthresh);
     [nmsbbox,nmsconf]=prunebboxes(bbox(indsel,:),conf(indsel),0.2);
     
     %%%%%%%%%%%%%%% display detections above threshold after non-max suppression
     %%%%%%%%%%%%%%% 
-    confthreshnms=5;
+    confthreshnms=4.8;
     clf, showimage(img)
-    indsel=find(nmsconf>confthreshnms);
-    showbbox(nmsbbox,[0 1 0],regexp(num2str(nmsconf(indsel)'),'\d+\.\d+','match'));
+    indsel2=find(nmsconf>confthreshnms);
+    showbbox(nmsbbox,[0 1 0],regexp(num2str(nmsconf(indsel2)'),'\d+\.\d+','match'));
     title(sprintf('%d NMS detections above threshold %1.3f confthresh %1.3f',size(nmsbbox,1),confthreshnms,confthresh),'FontSize',14)
     fprintf('press a key...'), pause, fprintf('\n')
     

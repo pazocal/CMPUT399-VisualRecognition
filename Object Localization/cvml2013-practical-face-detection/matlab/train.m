@@ -59,8 +59,8 @@ yneg=-ones(nneg,1);
 
 %%%%%%%%%%%%%%% separate data into the training and validation set
 %%%%%%%%%%%%%%% 
-ntrainpos=1000;
-ntrainneg=1000;
+ntrainpos=1200;
+ntrainneg=1200;
 indpostrain=1:ntrainpos; indposval=indpostrain+ntrainpos;
 indnegtrain=1:ntrainneg; indnegval=indnegtrain+ntrainneg;
 
@@ -155,13 +155,15 @@ fprintf(' -> Best accuracy %1.3f for C=%1.5f\n',accbest,Cbest)
 cellSize=8;
 for i=1:size(possamples,3)
     hog = vl_hog(single(possamples(:,:,i)), cellSize, 'verbose');
-    reX = reshape(hog,[3*3*31 1]);
+%     hog = vl_hog('render', hog, 'verbose', 'variant', 'dalaltriggs') ;
+    reX = reshape(hog,[size(hog,1)*size(hog,2)*size(hog,3) 1]);
     Xhogpos(i,:) = reX;
 end
 
 for i=1:size(negsamples,3)
     hog = vl_hog(single(negsamples(:,:,i)), cellSize, 'verbose');
-    reX = reshape(hog,[3*3*31 1]);
+%     hog = vl_hog('render', hog, 'verbose', 'variant', 'dalaltriggs') ;
+    reX = reshape(hog,[size(hog,1)*size(hog,2)*size(hog,3) 1]);
     Xhogneg(i,:) = reX;
 end
 
