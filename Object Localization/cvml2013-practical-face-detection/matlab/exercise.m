@@ -113,8 +113,8 @@ yneg=-ones(nneg,1);
 
 %%%%%%%%%%%%%%% separate data into the training and validation set
 %%%%%%%%%%%%%%% 
-ntrainpos=1000;
-ntrainneg=1000;
+ntrainpos=2000;
+ntrainneg=2000;
 indpostrain=1:ntrainpos; indposval=indpostrain+ntrainpos;
 indnegtrain=1:ntrainneg; indnegval=indnegtrain+ntrainneg;
 

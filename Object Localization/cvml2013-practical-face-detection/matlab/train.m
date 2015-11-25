@@ -1,7 +1,7 @@
 setup
 colormap(gray)
 
-
+clear all;
 
 % Load and normalize the training images
 
@@ -155,43 +155,30 @@ fprintf(' -> Best accuracy %1.3f for C=%1.5f\n',accbest,Cbest)
 cellSize=8;
 for i=1:size(possamples,3)
     hog = vl_hog(single(possamples(:,:,i)), cellSize, 'verbose');
-    reX = reshape(hog,[size(hog,1)*size(hog,2)*size(hog,3) 1]);
+    reX = reshape(hog,[3*3*31 1]);
     Xhogpos(i,:) = reX;
 end
 
 for i=1:size(negsamples,3)
     hog = vl_hog(single(negsamples(:,:,i)), cellSize, 'verbose');
-    reX = reshape(hog,[size(hog,1)*size(hog,2)*size(hog,3) 1]);
+    reX = reshape(hog,[3*3*31 1]);
     Xhogneg(i,:) = reX;
 end
 
-% ntrainpos=1000;
-% ntrainneg=1000;
-% indpostrain=1:ntrainpos; indposval=indpostrain+ntrainpos;
-% indnegtrain=1:ntrainneg; indnegval=indnegtrain+ntrainneg;
 Xhogpos=double(Xhogpos);
 Xhogneg=double(Xhogneg);
 Xtrain=[Xhogpos(indpostrain,:); Xhogneg(indnegtrain,:)];
-% ytrain=[ypos(indpostrain); yneg(indnegtrain)];
 Xval=[Xhogpos(indposval,:); Xhogneg(indnegval,:)];
-% yval=[ypos(indposval); yneg(indnegval)];
-
 
 Call=[100 10 1 .1 .01 .001 .0001 .00001];
 accbest=-inf; 
 modelbest=[];
 for i=1:length(Call)
   C=Call(i);
-  % fill-in this part with the training of linear SVM for
-  % the current C value (see code above). Select the model 
-  % 'modelbest' maximizing accuracy on the validation set. 
-  % Compute and display W for the current model
-  
   [Xsup,yalpha,b,pos]=svmclass(Xtrain,ytrain,C,epsilon,kernel,kerneloption,verbose);
   [ypredtrain,acctrain,conftrain]=svmvalmod(Xtrain,ytrain,Xsup,yalpha,b,kernel,kerneloption);
   [ypredval,accval,confval]=svmvalmod(Xval,yval,Xsup,yalpha,b,kernel,kerneloption);
   W = (yalpha'*Xsup)';
-%   clf, showimage(reshape(W,24,24));
   s=sprintf('C=%1.5f | Training accuracy: %1.3f; validation accuracy: %1.3f',C,acctrain,accval);
   title(s); fprintf([s '\n']); drawnow
   if accbest<accval,

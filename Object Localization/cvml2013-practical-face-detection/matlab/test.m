@@ -1,6 +1,6 @@
 % set up factors
 clear all;
-level=2;
+level=10;
 factor=1.5;
 rawdata = load('raw.mat');
 hogdata = load('hog.mat');
@@ -26,8 +26,8 @@ for j=1:level
     [x,y]=Stage1Detector(double(GI{j}),reshape(W_raw,24,24));
     x=x*(factor^(j-1)); y=y*(factor^(j-1));
 %     [x,y]=meshgrid(1:xsz-wxsz,1:ysz-wysz);
-%     bbox=[x(:)-wxsz/2 y(:)-wysz/2 x(:)+wxsz/2-1 y(:)+wysz/2-1];
-    bbox=[x(:)-wxsz y(:)-wysz x(:)+wxsz-1 y(:)+wysz-1]
+    bbox=[x(:)-wxsz/2 y(:)-wysz/2 x(:)+wxsz/2-1 y(:)+wysz/2-1];
+%     bbox=[x(:)-wxsz y(:)-wysz x(:)+wxsz-1 y(:)+wysz-1]
     
     ctemp=[1,1,0]
     clf, showimage(img), showbbox(bbox,ctemp);
@@ -35,10 +35,10 @@ for j=1:level
     fprintf('Wait'),pause,fprintf('\n');
     
     imgcropall=zeros(wysz,wxsz,length(x(:)));
-%     for i=1:size(bbox,1)
-%       imgcropall(:,:,i)=cropbbox(gimg,bbox(i,:));
-%     end
-% 
+    for i=1:size(bbox,1)
+      imgcropall(:,:,i)=cropbbox(gimg,bbox(i,:));
+    end
+
 %     imgcropall=zeros(wysz,wxsz,length(x(:)));
 %     cellSize=8;
 %     for k=1:size(imgcropall,3)
@@ -58,42 +58,15 @@ end
 % 
 imgcropall=meanvarpatchnorm(imgcropall);
 X=transpose([reshape(imgcropall,wysz*wxsz,n)]);
-conf=X*rawdata.Wbest-rawdata.bbest;
+conf=X*Wbest-bbest;
 
-
-
-n=20;
+n=100;
 [vs,is]=sort(conf,'descend');
 clf, showimage(img), showbbox(bbox(is(1:n),:))
 title(sprintf('%d best detections',n),'FontSize',14)
 fprintf('press a key...'), pause, fprintf('\n')
 
-% %%%%%%%%%%%%%%% **************************************************************
-% %%%%%%%%%%%%%%% **************************************************************
-% %%%%%%%%%%%%%%% *                                                            *
-% %%%%%%%%%%%%%%% *                       EXERCISE 3:                          *
-% %%%%%%%%%%%%%%% *                                                            *
-% %%%%%%%%%%%%%%% *        Non-maxima suppression of multiple responses        *
-% %%%%%%%%%%%%%%% *                                                            *
-% %%%%%%%%%%%%%%% **************************************************************
-% %%%%%%%%%%%%%%% **************************************************************
-% %%%%%%%%%%%%%%%
-% %%%%%%%%%%%%%%% Scanning-window style classification of image patches typically
-% %%%%%%%%%%%%%%% results in many multiple responses around the target object.
-% %%%%%%%%%%%%%%% A standard practice to deal with this is to remove any detector
-% %%%%%%%%%%%%%%% responses in the neighborhood of detections with locally maximal
-% %%%%%%%%%%%%%%% confidence scores (non-maxima suppression or NMS). NMS is
-% %%%%%%%%%%%%%%% usually applied to all detections in the image with confidence
-% %%%%%%%%%%%%%%% above certain threshold.
-% %%%%%%%%%%%%%%%
-% %%%%%%%%%%%%%%% TODO:
-% %%%%%%%%%%%%%%% 3.1 Try out different threshold values to pre-selected windows
-% %%%%%%%%%%%%%%%     passed to the NMS stage, see parameter 'confthresh' below.
-% %%%%%%%%%%%%%%% 3.2 Try out different threshold values for NMS detections,
-% %%%%%%%%%%%%%%%     see parameter 'confthreshnms'
-% %%%%%%%%%%%%%%% 3.3 Try detection and with different thresholds for different
-% %%%%%%%%%%%%%%%     included images: 'img1.jpg', 'img2.jpg', 'img3.jpg', 'img4.jpg'
-% %%%%%%%%%%%%%%% 
+
 threcan = [4.3 4.4 4.5 4.6 4.7];
 for i=1:length(threcan)
     confthresh=threcan(i);
