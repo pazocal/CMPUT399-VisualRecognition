@@ -40,7 +40,7 @@ opts = vl_argparse(opts, varargin) ;
 % --------------------------------------------------------------------
 
 switch opts.modelType
-  case 'lenet', net = cnn_cifar_init(opts) ;
+  case 'lenet', net = my_cnn_cifar_init(opts) ;
   case 'nin',   net = cnn_cifar_init_nin(opts) ;
 end
 
